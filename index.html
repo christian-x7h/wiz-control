@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WiZ Light Controller</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <h1>WiZ Light Controller</h1>
+    <button id="discover-btn">Discover WiZ Devices</button>
+    <div id="devices">
+      <!-- Devices will be listed here -->
+    </div>
+    <div id="light-control" style="display:none">
+      <h2>Light Control</h2>
+      <div>
+        <label for="ip-address">IP Address:</label>
+        <input type="text" id="ip-address">
+      </div>
+      <button id="get-details-btn">Get Details</button>
+      <button id="toggle-btn">Toggle</button>
+      <div>
+        <label for="color-input">Set Color (R,G,B):</label>
+        <input type="text" id="color-input" placeholder="255,0,0">
+      </div>
+      <button id="set-color-btn">Set Color</button>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
