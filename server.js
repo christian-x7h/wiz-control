@@ -16,6 +16,7 @@ app.get('/', (req, res) => {
 
 app.get('/send_udp', (req, res) => {
   const { ip, message } = req.query;
+  console.log(`Received send_udp request for ip address ${ip}`)
 
   if (!ip || !message) {
     res.status(400).send('IP address and message parameters are required');
@@ -41,7 +42,7 @@ app.get('/discover', (req, res) => {
     }
 
     const wiz_ips = stdout.match(/([0-9]{1,3}\.){3}[0-9]{1,3}(.*)(WiZ IoT Company Limited|WiZ Connected Lighting Company Limited)/g);
-    const wiz_ips_cleaned = wiz_ips.map(entry => entry.match(/([0-9]{1,3}\.){3}[0-9]{1,3}/g)[0]);
+    const wiz_ips_cleaned = [...new Set(wiz_ips.map(entry => entry.match(/([0-9]{1,3}\.){3}[0-9]{1,3}/g)[0]))];
 
     res.json(wiz_ips_cleaned);
   });

@@ -8,7 +8,7 @@ const setColorBtn = document.getElementById('set-color-btn');
 const lightControlDiv = document.getElementById('light-control');
 
 async function sendUdpMessage(ip, message) {
-  const response = await fetch(`http://localhost:3000?ip=${ip}&message=${encodeURIComponent(message)}`);
+  const response = await fetch(`http://localhost:3000/send_udp?ip=${ip}&message=${encodeURIComponent(message)}`);
   if (!response.ok) {
     throw new Error(`HTTP error ${response.status}`);
   }
@@ -56,6 +56,26 @@ async function discoverLights() {
     const response = await fetch('/discover');
     const wiz_ips = await response.json();
     console.log(wiz_ips);
+
+    // update the devices table
+    const devicesDiv = document.getElementById('devices');
+    devicesDiv.innerHTML = ''; // clear previous content
+
+    // create and append new elements for each IP address
+    wiz_ips.forEach(ip => {
+      const deviceDiv = document.createElement('div');
+      const deviceText = document.createTextNode(ip);
+      const onButton = document.createElement('button');
+      onButton.innerText = 'ON';
+      onButton.addEventListener('click', () => toggleLight(ip, true));
+      const offButton = document.createElement('button');
+      offButton.innerText = 'OFF';
+      offButton.addEventListener('click', () => toggleLight(ip, false));
+      deviceDiv.appendChild(deviceText);
+      deviceDiv.appendChild(onButton);
+      deviceDiv.appendChild(offButton);
+      devicesDiv.appendChild(deviceDiv);
+    });
   } catch (error) {
     console.error(`Error discovering WiZ devices: ${error}`);
   }
