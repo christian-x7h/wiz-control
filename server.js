@@ -1,32 +1,52 @@
-const http = require('http');
 const dgram = require('dgram');
 const url = require('url');
+const express = require('express');
+const { exec } = require('child_process');
 const udpClient = dgram.createSocket('udp4');
 
 const PORT = 3000;
 
-const server = http.createServer((req, res) => {
-  const { query } = url.parse(req.url, true);
-  const { ip, message } = query;
+const app = express();
+
+app.use(express.static('public'));
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
+app.get('/send_udp', (req, res) => {
+  const { ip, message } = req.query;
 
   if (!ip || !message) {
-    res.statusCode = 400;
-    res.end('IP address and message parameters are required');
+    res.status(400).send('IP address and message parameters are required');
     return;
   }
 
   udpClient.send(message, 0, message.length, 38899, ip, (err) => {
     if (err) {
-      res.statusCode = 500;
-      res.end('Error sending UDP message');
+      res.status(500).send('Error sending UDP message');
       return;
     }
 
-    res.statusCode = 200;
-    res.end('UDP message sent');
+    res.status(200).send('UDP message sent');
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+app.get('/discover', (req, res) => {
+  exec("arp-scan --localnet --interface=en0", (error, stdout, stderr) => {
+    if (error) {
+      console.error(`exec error: ${error}`);
+      res.status(500).send(`Error running arp-scan: ${error}`);
+      return;
+    }
+
+    const wiz_ips = stdout.match(/([0-9]{1,3}\.){3}[0-9]{1,3}(.*)(WiZ IoT Company Limited|WiZ Connected Lighting Company Limited)/g);
+    const wiz_ips_cleaned = wiz_ips.map(entry => entry.match(/([0-9]{1,3}\.){3}[0-9]{1,3}/g)[0]);
+
+    res.json(wiz_ips_cleaned);
+  });
+});
+
+app.listen(3000, () => {
+  console.log('Server listening on port 3000');
 });
